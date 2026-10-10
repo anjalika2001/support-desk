@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block content %}
+{% set total = counts.values()|sum %}
+<section class="summary">
+  {% for status, cls in [('Open', 'high'), ('In progress', 'progress'), ('Escalated', 'escalated'), ('Resolved', 'low')] %}
+  {% set n = counts.get(status, 0) %}
+  <button type="button" class="stat {{ cls }}" data-status="{{ status }}"{% if status == 'Resolved' %} data-href="{{ url_for('knowledge') }}"{% endif %}
+          title="{{ 'Show all resolved tickets in the knowledge base' if status == 'Resolved' else 'Filter the queue to ' ~ status }}">
+    <span class="num">{{ n }}</span>
+    <span class="label">{{ status }}</span>
+    <span class="hint">{{ 'View &rarr;'|safe if status == 'Resolved' else 'Filter' }}</span>
+    <span class="bar"><i style="width: {{ (n / total * 100)|round(1) if total else 0 }}%"></i></span>
+  </button>
+  {% endfor %}
+</section>
+
+<section class="card" id="new-ticket-card">
+  <div class="card-head">
+    <h2>Log a new ticket</h2>
+    <button type="button" class="ghost" id="toggle-form" aria-expanded="true" aria-controls="new-ticket-body">
+      <span class="toggle-icon">&#9662;</span> <span class="toggle-text">Hide</span>
+    </button>
+  </div>
+  <div class="collapse" id="new-ticket-body"><div>
+  <form action="{{ url_for('create_ticket') }}" method="post" class="new-ticket">
+    <label>Client <input name="client" placeholder="e.g. Harbour Securities" required autocomplete="off"></label>
+    <label>Email
+      <input type="email" name="email" placeholder="name@company.co.nz" autocomplete="off"
+             pattern="[^@\s]+@[^@\s]+\.[^@\s]+" title="An email address like name@company.co.nz">
+    </label>
+    <label>Phone
+      <span class="phone-field">
+        <span class="prefix">+64</span>
+        <input type="tel" name="phone" inputmode="tel" placeholder="21 123 4567" autocomplete="off" data-nz-phone
+               title="A New Zealand number: 8-10 digits after +64, e.g. 21 123 4567">
+      </span>
+    </label>
+    <label>Channel <select name="channel">{% for c in channels %}<option>{{ c }}</option>{% endfor %}</select></label>
+    <label>Category <select name="category">{% for c in categories %}<option>{{ c }}</option>{% endfor %}</select></label>
+    <div class="wide">
+      <div class="fieldset-label" id="priority-label">Priority</div>
+      <div class="segmented" role="radiogroup" aria-labelledby="priority-label">
+        {% for p in priorities %}
+          <input type="radio" name="priority" id="prio-{{ p|lower }}" value="{{ p }}" {{ 'checked' if loop.first }}>
+          <label for="prio-{{ p|lower }}" style="--dot: var(--{{ p|lower }})">{{ p }}</label>
+        {% endfor %}
+      </div>
+    </div>
+    <label class="wide">Issue
+      <textarea name="issue" rows="2" required maxlength="1000" data-autogrow
+                placeholder="What is the client seeing? Include error messages, when it started and who is affected."></textarea>
+    </label>
+    <button type="submit">Log ticket</button>
+  </form>
+  </div></div>
+</section>
+
+<section class="card">
+  <div class="card-head">
+    <h2>Active queue <small>(most urgent first)</small></h2>
+    <span class="result-count" id="result-count"></span>
+  </div>
+  {% if queue %}
+  <div class="toolbar">
+    <div class="search-input">
+      <input type="search" id="queue-search" placeholder="Filter by client, issue, category..." aria-label="Filter the queue">
+    </div>
+    <div class="chips" role="group" aria-label="Filter by priority">
+      <button type="button" class="chip on" data-prio="">All</button>
+      {% for p in priorities %}<button type="button" class="chip" data-prio="{{ p }}">{{ p }}</button>{% endfor %}
+    </div>
+  </div>
+  <table id="queue">
+    <thead><tr>
+      <th class="sortable" data-key="id">#</th>
+      <th class="sortable" data-key="prio">Priority</th>
+      <th class="sortable" data-key="status">Status</th>
+      <th class="sortable" data-key="client">Client</th>
+      <th class="sortable" data-key="category">Category</th>
+      <th>Issue</th>
+      <th class="sortable" data-key="channel">Channel</th>
+      <th class="sortable" data-key="created">Logged</th>
+    </tr></thead>
+    <tbody>
+    {% for t in queue %}
+      <tr class="clickable" data-href="{{ url_for('ticket', ticket_id=t.id) }}"
+          data-id="{{ t.id }}" data-prio="{{ t.priority }}" data-status="{{ t.status }}"
+          data-client="{{ t.client }}" data-category="{{ t.category }}" data-channel="{{ t.channel }}"
+          data-created="{{ t.created }}">
+        <td><a href="{{ url_for('ticket', ticket_id=t.id) }}">#{{ t.id }}</a></td>
+        <td><span class="badge {{ t.priority|lower }}{{ ' pulse' if t.priority == 'High' and t.status == 'Open' }}">{{ t.priority }}</span></td>
+        <td><span class="badge status-{{ t.status|lower|replace(' ', '-') }}">{{ t.status }}</span></td>
+        <td>{{ t.client }}</td>
+        <td>{{ t.category }}</td>
+        <td><a href="{{ url_for('ticket', ticket_id=t.id) }}">{{ t.issue }}</a></td>
+        <td>{{ t.channel }}</td>
+        <td class="date" data-ts="{{ t.created }}">{{ t.created }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <p class="no-match" id="no-match" hidden>No tickets match these filters. <a href="#" id="clear-filters">Clear filters</a></p>
+  {% else %}<p class="empty">No active tickets.</p>{% endif %}
+</section>
+{% endblock %}

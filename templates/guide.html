@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}User guide{% endblock %}
+{% block content %}
+<section class="card guide">
+  <h2>User guide</h2>
+  <p>A quick guide for new team members on handling a support request from start to finish.</p>
+
+  <h3>1. Log the request</h3>
+  <ol>
+    <li>On the <strong>Tickets</strong> page, enter the client, their contact email and phone number (New Zealand numbers, typed after the fixed <strong>+64</strong>), how they contacted you (phone, email or in person), the category and priority.</li>
+    <li>Describe the issue clearly: what the client sees, any error message, when it started and who is affected.</li>
+  </ol>
+
+  <h3>2. Choose the right priority</h3>
+  <ul>
+    <li><strong>High</strong> - business stopped or a deadline at risk (e.g. trades not settling, nobody can log in).</li>
+    <li><strong>Medium</strong> - work is affected but there is a workaround.</li>
+    <li><strong>Low</strong> - minor issue or a question.</li>
+  </ul>
+
+  <h3>3. Check the knowledge base</h3>
+  <p>Search <strong>Knowledge base</strong> for the same problem. A past fix may solve it straight away.</p>
+
+  <h3>4. Diagnose and record what you check</h3>
+  <p>Open the ticket and add a note for each step you try. Anyone picking up the ticket can see what has been done.</p>
+
+  <h3>5. Escalate when needed</h3>
+  <p>If it affects many clients, is urgent, or is beyond first-line support, use <strong>Escalate to engineering</strong>. Include steps to reproduce, what you've ruled out and the impact.</p>
+
+  <h3>6. Resolve and confirm</h3>
+  <p>Confirm the fix with the client, then resolve the ticket with a clear note of what fixed it. It becomes part of the knowledge base.</p>
+
+  <h3>After installing or upgrading</h3>
+  <p>Open <strong>System check</strong> to confirm the database and tables are set up correctly.</p>
+</section>
+{% endblock %}

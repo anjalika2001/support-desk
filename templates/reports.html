@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Reports{% endblock %}
+{% block content %}
+<p class="intro">Each report is one SQL query against the support database. Click <strong>Show SQL</strong> to see how it works.</p>
+<div class="report-grid">
+{% for r in results %}
+<section class="card">
+  <h2>{{ r.title }}</h2>
+  <p class="empty">{{ r.desc }}</p>
+  {% if r.rows %}
+  <table>
+    <thead><tr>{% for c in r.cols %}<th>{{ c }}</th>{% endfor %}</tr></thead>
+    <tbody>{% for row in r.rows %}<tr>{% for v in row %}<td>{{ v if v is not none else '-' }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+  </table>
+  {% else %}<p class="empty">No data yet.</p>{% endif %}
+  <details>
+    <summary>Show SQL</summary>
+    <pre>{{ r.sql }}</pre>
+    <a href="{{ url_for('sql_console', q=r.sql) }}">Open in SQL practice</a>
+  </details>
+</section>
+{% endfor %}
+</div>
+{% endblock %}

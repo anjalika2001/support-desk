@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Support Desk{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+  <header>
+    <h1><span class="logo" aria-hidden="true">&#9993;</span>Support Desk</h1>
+    <p>Log, diagnose, escalate and resolve client support requests.</p>
+  </header>
+  <nav>
+    <a href="{{ url_for('index') }}" class="{{ 'active' if page == 'home' }}">Tickets</a>
+    <a href="{{ url_for('knowledge') }}" class="{{ 'active' if page == 'knowledge' }}">Knowledge base</a>
+    <a href="{{ url_for('reports') }}" class="{{ 'active' if page == 'reports' }}">Reports</a>
+    <a href="{{ url_for('sql_console') }}" class="{{ 'active' if page == 'sql' }}">SQL practice</a>
+    <a href="{{ url_for('health') }}" class="{{ 'active' if page == 'health' }}">System check</a>
+    <a href="{{ url_for('guide') }}" class="{{ 'active' if page == 'guide' }}">User guide</a>
+  </nav>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="toasts" role="status" aria-live="polite">
+      {% for kind, msg in messages %}<div class="flash {{ kind }}">{{ msg }}</div>{% endfor %}
+    </div>
+    {% endif %}
+  {% endwith %}
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

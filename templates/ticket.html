@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Ticket #{{ t.id }}{% endblock %}
+{% block content %}
+<a class="back-link" href="{{ url_for('index') }}"><span>&larr;</span> Back to queue</a>
+<section class="card">
+  <h2>#{{ t.id }} &middot; {{ t.issue }}</h2>
+  <div class="meta">
+    <div><span>Client</span>{{ t.client }}</div>
+    <div><span>Status</span><span class="badge status-{{ t.status|lower|replace(' ', '-') }}">{{ t.status }}</span></div>
+    <div><span>Priority</span><span class="badge {{ t.priority|lower }}">{{ t.priority }}</span></div>
+    <div><span>Category / channel</span>{{ t.category }} &middot; {{ t.channel }}</div>
+    <div><span>Email</span>{% if t.email %}<a href="mailto:{{ t.email }}">{{ t.email }}</a>{% else %}<span class="empty">Not given</span>{% endif %}</div>
+    <div><span>Phone</span>{% if t.phone %}<a href="tel:{{ t.phone|replace(' ', '') }}">{{ t.phone }}</a>{% else %}<span class="empty">Not given</span>{% endif %}</div>
+  </div>
+  {% set steps = ['Open', 'In progress', 'Escalated', 'Resolved'] %}
+  {% set cur = steps.index(t.status) if t.status in steps else 0 %}
+  <ol class="stepper" aria-label="Ticket progress">
+    {% for s in steps %}
+      <li class="{{ 'done' if loop.index0 < cur or t.status == 'Resolved' }} {{ 'current' if loop.index0 == cur }} {{ 'esc' if s == 'Escalated' }}">{{ s }}</li>
+    {% endfor %}
+  </ol>
+  {% if t.resolution %}<p class="resolution-box"><strong>Resolution:</strong> {{ t.resolution }}</p>{% endif %}
+</section>
+
+<section class="card">
+  <h2>History <small>({{ notes|length }} entr{{ 'y' if notes|length == 1 else 'ies' }})</small></h2>
+  <ul class="notes">
+    {% for n in notes %}<li><div class="when" data-ts="{{ n.created }}">{{ n.created }}</div>{{ n.note }}</li>{% endfor %}
+  </ul>
+
+  {% if t.status != 'Resolved' %}
+  <div class="tabs" role="tablist">
+    <button type="button" class="on" data-tab="note" style="--tab-c: var(--accent)">Add note</button>
+    <button type="button" data-tab="escalate" style="--tab-c: var(--escalated)">Escalate</button>
+    <button type="button" data-tab="resolve" style="--tab-c: var(--low)">Resolve</button>
+    <span class="ink"></span>
+  </div>
+  <div class="actions">
+    <form action="{{ url_for('ticket_note', ticket_id=t.id) }}" method="post" class="on" data-panel="note">
+      <h3>Add diagnosis note</h3>
+      <textarea name="note" rows="3" required minlength="{{ NOTE_MIN }}" maxlength="{{ NOTE_MAX }}" data-autogrow placeholder="What did you check or try?"></textarea>
+      <small class="empty">{{ NOTE_MIN }}-{{ NOTE_MAX }} characters. Describe what you did, not just a number.</small>
+      <button type="submit">Add note</button>
+    </form>
+    <form action="{{ url_for('escalate', ticket_id=t.id) }}" method="post" class="escalate" data-panel="escalate">
+      <h3>Escalate to engineering</h3>
+      <textarea name="reason" rows="3" required minlength="{{ NOTE_MIN }}" maxlength="{{ NOTE_MAX }}" data-autogrow placeholder="Steps to reproduce, what you've ruled out, impact"></textarea>
+      <small class="empty">{{ NOTE_MIN }}-{{ NOTE_MAX }} characters. Describe what you did, not just a number.</small>
+      <button type="submit">Escalate</button>
+    </form>
+    <form action="{{ url_for('resolve', ticket_id=t.id) }}" method="post" class="resolve-box" data-panel="resolve">
+      <h3>Resolve</h3>
+      <textarea name="resolution" rows="3" required minlength="{{ NOTE_MIN }}" maxlength="{{ NOTE_MAX }}" data-autogrow placeholder="How was it fixed? Confirmed with the client?"></textarea>
+      <small class="empty">{{ NOTE_MIN }}-{{ NOTE_MAX }} characters. Describe what you did, not just a number.</small>
+      <button type="submit">Resolve ticket</button>
+    </form>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

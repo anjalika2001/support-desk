@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}SQL practice{% endblock %}
+{% block content %}
+<section class="card">
+  <h2>SQL practice <small>(read-only: SELECT queries only)</small></h2>
+  <p class="empty">Tables: <code>tickets</code> (id, client, email, phone, channel, category, priority, issue, status, resolution, created, updated, resolved) and <code>notes</code> (id, ticket_id, note, created).</p>
+  <form method="post">
+    <textarea name="sql" rows="6" class="sql-box" placeholder="SELECT * FROM tickets">{{ sql }}</textarea>
+    <div class="sql-actions"><button type="submit">Run query</button></div>
+  </form>
+  <p class="examples-label">Try an example:</p>
+  <ul class="examples">
+    {% for q in examples %}<li><a href="{{ url_for('sql_console', q=q) }}"><code>{{ q }}</code></a></li>{% endfor %}
+  </ul>
+</section>
+
+{% if error %}<div class="flash error">{{ error }}</div>{% endif %}
+
+{% if sql and not error %}
+<section class="card">
+  <h2>Results <small>({{ rows|length }} row{{ '' if rows|length == 1 else 's' }})</small></h2>
+  {% if rows %}
+  <table>
+    <thead><tr>{% for c in cols %}<th>{{ c }}</th>{% endfor %}</tr></thead>
+    <tbody>{% for row in rows %}<tr>{% for v in row %}<td>{{ v if v is not none else '-' }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+  </table>
+  {% else %}<p class="empty">The query ran but returned no rows.</p>{% endif %}
+</section>
+{% endif %}
+{% endblock %}

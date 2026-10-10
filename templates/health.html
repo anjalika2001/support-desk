@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}System check{% endblock %}
+{% block content %}
+<div class="flash {{ 'ok' if all_ok else 'error' }}">
+  {{ 'All checks passed. The system is installed correctly and the data is consistent.' if all_ok else 'Some checks need attention. See below.' }}
+</div>
+
+<section class="card">
+  <h2>Installation check <small>(run after installing or configuring)</small></h2>
+  {% for name, ok, detail in checks %}
+    <div class="check">
+      <span>{{ name }}<br><small class="empty">{{ detail }}</small></span>
+      <span class="{{ 'pass' if ok else 'fail' }}">{{ 'PASS' if ok else 'FAIL' }}</span>
+    </div>
+  {% endfor %}
+</section>
+
+<section class="card">
+  <h2>Data integrity check <small>(each query should return no rows)</small></h2>
+  {% for i in integrity %}
+    <div class="check">
+      <span>{{ i.name }}
+        {% if i.error %}<br><small class="fail">{{ i.error }}</small>{% endif %}
+        {% if i.rows %}<br><small class="empty">Found {{ i.rows|length }}: {% for r in i.rows[:5] %}#{{ r[0] }}{{ ', ' if not loop.last }}{% endfor %}</small>{% endif %}
+      </span>
+      <span class="{{ 'pass' if i.ok else 'fail' }}">{{ 'PASS' if i.ok else 'CHECK' }}</span>
+    </div>
+    {% if i.sql %}<details class="check-sql"><summary>Show SQL</summary><pre>{{ i.sql }}</pre></details>{% endif %}
+  {% endfor %}
+</section>
+{% endblock %}

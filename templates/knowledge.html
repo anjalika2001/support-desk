@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Knowledge base{% endblock %}
+{% block content %}
+<section class="card">
+  <h2>Knowledge base <small>(search past fixes before starting a new ticket)</small></h2>
+  <form class="search" method="get">
+    <input name="q" value="{{ q }}" placeholder="Search issues, fixes, clients or categories, e.g. login">
+    <button type="submit">Search</button>
+  </form>
+  {% if rows %}
+  <table>
+    <thead><tr><th>#</th><th>Category</th><th>Issue</th><th>How it was fixed</th><th>Client</th></tr></thead>
+    <tbody>
+    {% for t in rows %}
+      <tr>
+        <td><a href="{{ url_for('ticket', ticket_id=t.id) }}">#{{ t.id }}</a></td>
+        <td>{{ t.category }}</td><td>{{ t.issue }}</td><td>{{ t.resolution }}</td><td>{{ t.client }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}<p class="empty">{{ 'No matching fixes.' if q else 'No resolved tickets yet.' }}</p>{% endif %}
+</section>
+{% endblock %}
