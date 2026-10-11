@@ -7,7 +7,7 @@ Built with Python (Flask) and SQLite.
 ## Run it
 ```
 pip install flask
-python seed.py      (optional: loads sample tickets)
+python seed.py    
 python app.py
 ```
 Open http://localhost:5000. Press Ctrl + C to stop.
@@ -29,9 +29,9 @@ Open http://localhost:5000. Press Ctrl + C to stop.
 ## How it is built (three tiers)
 | Layer | Files | Job |
 |---|---|---|
-| Front end | `templates/`, `static/style.css` | Pages the user sees |
+| Front end | `static/style.css` | Pages the user sees |
 | Logic | `app.py` | Routes, validation, SQL |
-| Data | `support.db` (created on first run) | Tables `tickets` and `notes` |
+| Data | `support.db`  | Tables `tickets` and `notes` |
 
 ## SQL used
 INSERT, SELECT, UPDATE, WHERE, ORDER BY, GROUP BY, COUNT, SUM, AVG, CASE,
