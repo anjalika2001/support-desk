@@ -30,7 +30,8 @@ Open http://localhost:5000. Press Ctrl + C to stop.
 | Layer | Files | Job |
 |---|---|---|
 | Front end | `static/style.css` | Pages the user sees |
-| Logic | `app.py` | Routes, validation, SQL |
+| Logic | `app.py` | Routes and validation |
+| Logic | `queries.py` | SQL for reports, integrity checks and SQL examples |
 | Data | `support.db`  | Tables `tickets` and `notes` |
 
 ## SQL used
